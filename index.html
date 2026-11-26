@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>萬能的機器人【科技讓生活更便利】3D 互動電子書</title>
+<style>
+  :root {
+    --bg-dark: #0f172a;
+    --panel-bg: rgba(15, 23, 42, 0.92);
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-subtle: rgba(148, 163, 184, 0.25);
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+    color: var(--text-main);
+    font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+  }
+
+  /* 頂部工具列：支援手機橫豎屏彈性折行與無遮擋安全區 */
+  #topbar {
+    position: fixed;
+    top: env(safe-area-inset-top, 0);
+    left: 0;
+    right: 0;
+    min-height: 54px;
+    padding: 6px 12px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    z-index: 100;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  #topbar.hidden-bar {
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .brand-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #e0f2fe;
+    white-space: nowrap;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.2);
+    color: #7dd3fc;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+  }
+  .toolbar-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  button, .btn-label {
+    appearance: none;
+    border: 1px solid var(--border-subtle);
+    background: rgba(30, 41, 59, 0.85);
+    color: var(--text-main);
+    padding: 6px 11px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+  }
+  button:hover, .btn-label:hover {
+    background: rgba(51, 65, 85, 0.95);
+    border-color: var(--accent);
+  }
+  button:active, .btn-label:active {
+    transform: scale(0.97);
+  }
+  button.primary, .btn-label.primary {
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    border-color: #38bdf8;
+    color: #fff;
+  }
+  button.success {
+    background: linear-gradient(135deg, #059669, #10b981);
+    border-color: #34d399;
+    color: #fff;
+  }
+  button.danger {
+    background: rgba(185, 28, 28, 0.75);
+    border-color: rgba(248, 113, 113, 0.5);
+  }
+  button.active-toggle {
+    background: rgba(56, 189, 248, 0.28);
+    border-color: #38bdf8;
+    color: #bae6fd;
+  }
+
+  /* 主舞台：3D 書本容器 */
+  #stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 62px 48px 58px 48px;
+    perspective: 2400px;
+    overflow: hidden;
+  }
+  body.clean-mode #stage {
+    padding: 12px 16px;
+  }
+
+  #book-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 1480px;
+    max-height: 860px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #book-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #111827;
+    border-radius: 10px;
+    box-shadow:
+      0 25px 60px rgba(0, 0, 0, 0.75),
+      0 0 0 1px rgba(255, 255, 255, 0.08),
+      inset 0 0 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transform-style: preserve-3d;
+    cursor: zoom-in;
+  }
+  #book-card.zoomed {
+    cursor: grab;
+  }
+  #book-card.zoomed:active {
+    cursor: grabbing;
+  }
+
+  /* 中央書脊立體陰影線 */
+  #spine-shadow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 44px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      90deg,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.22) 38%,
+      rgba(0,0,0,0.48) 50%,
+      rgba(0,0,0,0.22) 62%,
+      rgba(0,0,0,0) 100%
+    );
+    pointer-events: none;
+    z-index: 15;
+    transition: opacity 0.25s;
+  }
+
+  /* 影像層與反光抑制/清晰度增強濾鏡 */
+  #page-viewport {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center center;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #page-viewport.no-transition {
+    transition: none !important;
+  }
+
+  #current-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+    transition: filter 0.3s ease;
+  }
+  /* 抗反光與文字清晰增強模式 */
+  .enhance-on #current-image,
+  .enhance-on .flip-face img {
+    filter: contrast(1.14) saturate(1.12) brightness(0.96);
+  }
+
+  /* 3D 翻頁動畫覆蓋層 */
+  #flip-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30;
+    perspective: 2400px;
+    display: none;
+  }
+  .flip-leaf {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.68s cubic-bezier(0.32, 0.04, 0.22, 1);
+  }
+  .flip-leaf.right-half {
+    left: 50%;
+    transform-origin: left center;
+  }
+  .flip-leaf.left-half {
+    left: 0;
+    transform-origin: right center;
+  }
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    overflow: hidden;
+    background: #0f172a;
+  }
+  .flip-face img {
+    position: absolute;
+    top: 0;
+    width: 200%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .flip-leaf.right-half .flip-front img { left: -100%; }
+  .flip-leaf.right-half .flip-back { transform: rotateY(180deg); }
+  .flip-leaf.right-half .flip-back img { left: 0; }
+
+  .flip-leaf.left-half .flip-front img { left: 0; }
+  .flip-leaf.left-half .flip-back { transform: rotateY(180deg); }
+  .flip-leaf.left-half .flip-back img { left: -100%; }
+
+  .flip-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.35), rgba(255,255,255,0.12), rgba(0,0,0,0.35));
+    opacity: 0.45;
+  }
+
+  /* 左右懸浮翻頁按鈕 */
+  .nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 76px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    color: #f8fafc;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 90;
+    backdrop-filter: blur(6px);
+    transition: all 0.2s;
+  }
+  .nav-arrow:hover {
+    background: rgba(2, 132, 199, 0.88);
+    border-color: #7dd3fc;
+  }
+  #prev-btn { left: 8px; }
+  #next-btn { right: 8px; }
+
+  /* 底部控制列 */
+  #bottombar {
+    position: fixed;
+    bottom: env(safe-area-inset-bottom, 0);
+    left: 0;
+    right: 0;
+    height: 50px;
+    padding: 0 14px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 100;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  #bottombar.hidden-bar {
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  #page-info {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #progress-wrap {
+    flex: 1;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #page-slider {
+    width: 100%;
+    accent-color: #38bdf8;
+    cursor: pointer;
+  }
+
+  /* 隱藏工具列時的浮動恢復鈕 */
+  #restore-ui-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 120;
+    display: none;
+    background: rgba(15, 23, 42, 0.82);
+    border-color: #38bdf8;
+  }
+  body.clean-mode #restore-ui-btn {
+    display: inline-flex;
+  }
+
+  /* 頁次目錄與順序管理抽屜 */
+  #drawer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 50px;
+    max-height: 58vh;
+    background: rgba(15, 23, 42, 0.96);
+    border-top: 1px solid #38bdf8;
+    backdrop-filter: blur(12px);
+    z-index: 110;
+    display: none;
+    flex-direction: column;
+    padding: 12px 16px;
+    box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.65);
+  }
+  #drawer.open {
+    display: flex;
+  }
+  .drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 10px;
+    overflow-y: auto;
+    padding-bottom: 6px;
+  }
+  .thumb-card {
+    background: #1e293b;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+  }
+  .thumb-card.active {
+    border-color: #38bdf8;
+    background: rgba(2, 132, 199, 0.22);
+  }
+  .thumb-card img {
+    width: 100%;
+    height: 82px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #0f172a;
+  }
+  .thumb-title {
+    font-size: 11px;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .thumb-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .thumb-actions button {
+    padding: 2px 6px;
+    font-size: 11px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* 提示氣泡與拖曳覆蓋層 */
+  #toast {
+    position: fixed;
+    top: 66px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(2, 132, 199, 0.95);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  #toast.show { opacity: 1; }
+
+  #drop-zone-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 132, 199, 0.85);
+    border: 4px dashed #fff;
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  #drop-zone-mask.active { display: flex; }
+
+  @media (max-width: 768px) {
+    #stage { padding: 92px 10px 54px 10px; }
+    .nav-arrow { width: 34px; height: 56px; font-size: 18px; }
+    .brand-title span:first-child { max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+  }
+</style>
+</head>
+<body class="enhance-on">
+
+<div id="topbar">
+  <div class="brand-title">
+    <span>🤖 萬能的機器人【科技讓生活更便利】</span>
+    <span class="badge" id="mode-badge">示範預覽模式</span>
+  </div>
+  <div class="toolbar-group">
+    <label class="btn-label primary" title="支援先匯入 1 張，之後再分批匯入任意張數">
+      📷 分批匯入照片
+      <input type="file" id="file-input" accept="image/*" multiple style="display:none">
+    </label>
+    <button id="enhance-btn" class="active-toggle" title="強化文字對比並降低反光泛白">✨ 抗反光清晰</button>
+    <button id="kenburns-btn" title="自動平移動畫特寫左右跨頁">🎬 自動運鏡</button>
+    <button id="sound-btn" class="active-toggle" title="開啟或關閉翻頁音效">🔊 翻頁聲</button>
+    <button id="fullscreen-btn" title="滿版投影模式">⛶ 滿版投影</button>
+    <button id="export-btn" class="success" title="將目前所有累積照片打包下載成單一離線 HTML 檔">💾 匯出離線 HTML</button>
+    <button id="clear-btn" class="danger" title="清空目前匯入的照片並恢復預設">🗑️ 清空</button>
+  </div>
+</div>
+
+<button id="restore-ui-btn" title="顯示工具列">⚙️ 工具列</button>
+
+<div id="stage">
+  <div id="book-wrapper">
+    <div id="book-card">
+      <div id="spine-shadow"></div>
+      <div id="page-viewport">
+        <img id="current-image" alt="書頁畫面">
+      </div>
+      <div id="flip-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<button id="prev-btn" class="nav-arrow" title="上一頁 (←)">❮</button>
+<button id="next-btn" class="nav-arrow" title="下一頁 (→ / 空白鍵)">❯</button>
+
+<div id="bottombar">
+  <div id="page-info">第 1 / 1 頁</div>
+  <div id="progress-wrap">
+    <input type="range" id="page-slider" min="0" max="0" value="0">
+  </div>
+  <div class="toolbar-group">
+    <button id="reset-zoom-btn" style="display:none">🔍 還原全頁</button>
+    <button id="drawer-btn">📑 頁次目錄</button>
+  </div>
+</div>
+
+<div id="drawer">
+  <div class="drawer-header">
+    <strong style="font-size:14px;color:#7dd3fc;">📑 頁面管理（點擊跳轉，可用 ◀ ▶ 調整順序）</strong>
+    <div class="toolbar-group">
+      <label class="btn-label primary" style="padding:4px 10px;font-size:12px;">
+        ＋ 繼續新增照片
+        <input type="file" id="drawer-file-input" accept="image/*" multiple style="display:none">
+      </label>
+      <button id="close-drawer-btn" style="padding:4px 10px;font-size:12px;">關閉</button>
+    </div>
+  </div>
+  <div class="thumb-grid" id="thumb-grid"></div>
+</div>
+
+<div id="toast"></div>
+<div id="drop-zone-mask">
+  <div>📂 放開滑鼠即可分批加入書頁照片</div>
+  <div style="font-size:14px;font-weight:500;">支援單張或多張累積匯入，並依檔名自動排序</div>
+</div>
+
+<script>
+// 內嵌已匯入頁面資料（匯出離線 HTML 時會直接寫入此陣列）
+const EMBEDDED_PAGES = /*__EMBEDDED_PAGES__*/ null /*__END_EMBEDDED_PAGES__*/;
+
+// 依您拍攝的 16 張原始檔名尾碼對應書本頁碼與主題
+const KNOWN_PAGE_MAP = {
+  "21660": { label: "封面", title: "萬能的機器人【科技讓生活更便利】封面" },
+  "21695": { label: "封底＋封面", title: "全書封面與封底展開圖" },
+  "21663": { label: "P.4 - P.5", title: "機器人的角色與外型多樣性" },
+  "21665": { label: "P.6 - P.7", title: "「機器人」名詞的由來（1920 捷克作家恰佩克）" },
+  "21667": { label: "P.8 - P.9", title: "早期自動機械：14世紀機器雞與18世紀機器鴨" },
+  "21669": { label: "P.10 - P.11", title: "電腦加入與工業用機器人" },
+  "21671": { label: "P.12 - P.13", title: "現代機器人的運作與四種機能透視圖" },
+  "21673": { label: "P.14 - P.15", title: "汽車工廠裡的機械手臂" },
+  "21675": { label: "P.16 - P.17", title: "家用掃地機器人與未來生活想像" },
+  "21677": { label: "P.18 - P.19", title: "會互動的機器寵物（機器狗）" },
+  "21679": { label: "P.20 - P.21", title: "足球機器人與機器人世界盃" },
+  "21681": { label: "P.22 - P.23", title: "超音波導盲機器人" },
+  "21683": { label: "P.24 - P.25", title: "深海探測與海底工作機器人" },
+  "21685": { label: "P.26 - P.27", title: "月球與火星宇宙探查機器人" },
+  "21689": { label: "P.28 - P.29", title: "生物機器人與未來智慧機器人" },
+  "21691": { label: "P.30 - P.31", title: "火場救援機器人與人類好夥伴" },
+  "21693": { label: "書末活動頁", title: "活動 1（訂做專屬機器人）與活動 2（思考討論）" }
+};
+
+function createDemoSvg(pageTag, title, subtitle, bg1, bg2) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${bg1}"/>
+        <stop offset="100%" stop-color="${bg2}"/>
+      </linearGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#g)"/>
+    <rect x="60" y="60" width="1480" height="780" rx="28" fill="rgba(15,23,42,0.55)" stroke="rgba(255,255,255,0.28)" stroke-width="3"/>
+    <line x1="800" y1="60" x2="800" y2="840" stroke="rgba(0,0,0,0.45)" stroke-width="6"/>
+    <text x="800" y="250" text-anchor="middle" fill="#7dd3fc" font-size="34" font-family="sans-serif" font-weight="bold">${pageTag}</text>
+    <text x="800" y="360" text-anchor="middle" fill="#ffffff" font-size="54" font-family="sans-serif" font-weight="bold">${title}</text>
+    <text x="800" y="450" text-anchor="middle" fill="#e2e8f0" font-size="30" font-family="sans-serif">${subtitle}</text>
+    <rect x="430" y="540" width="740" height="150" rx="18" fill="rgba(2,132,199,0.35)" stroke="#38bdf8" stroke-width="2"/>
+    <text x="800" y="605" text-anchor="middle" fill="#ffffff" font-size="28" font-family="sans-serif" font-weight="bold">👉 請點擊上方「📷 分批匯入照片」或直接拖曳書頁照片進來</text>
+    <text x="800" y="655" text-anchor="middle" fill="#bae6fd" font-size="23" font-family="sans-serif">支援先匯入 1 張，之後再陸續匯入多張，完成後可「💾 匯出離線 HTML」</text>
+  </svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+const DEFAULT_DEMO_PAGES = [
+  {
+    name: "demo_cover",
+    label: "示範封面",
+    title: "萬能的機器人【科技讓生活更便利】3D 互動電子書",
+    src: createDemoSvg("示範預覽頁 1 / 2", "萬能的機器人【科技讓生活更便利】", "支援 3D 立體翻頁特效・單頁局部點擊放大特寫・抗反光清晰增強", "#0369a1", "#1e1b4b"),
+    isDemo: true
+  },
+  {
+    name: "demo_guide",
+    label: "示範內頁",
+    title: "累積分批匯入與課堂滿版投影說明",
+    src: createDemoSvg("示範預覽頁 2 / 2", "分批匯入書頁照片操作指南", "點擊畫面任意處可放大注音文字與插畫；按 ← → 鍵或滑動即可 3D 翻頁", "#065f46", "#0f172a"),
+    isDemo: true
+  }
+];
+
+let pages = (Array.isArray(EMBEDDED_PAGES) && EMBEDDED_PAGES.length > 0)
+  ? EMBEDDED_PAGES
+  : [...DEFAULT_DEMO_PAGES];
+
+let currentIndex = 0;
+let isFlipping = false;
+let soundEnabled = true;
+let enhanceEnabled = true;
+let kenBurnsTimer = null;
+
+// 局部放大與拖曳狀態
+let zoomScale = 1;
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let hasMovedDuringDrag = false;
+
+const currentImg = document.getElementById("current-image");
+const pageViewport = document.getElementById("page-viewport");
+const bookCard = document.getElementById("book-card");
+const flipOverlay = document.getElementById("flip-overlay");
+const pageInfo = document.getElementById("page-info");
+const pageSlider = document.getElementById("page-slider");
+const modeBadge = document.getElementById("mode-badge");
+const resetZoomBtn = document.getElementById("reset-zoom-btn");
+const toastEl = document.getElementById("toast");
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toastEl.classList.remove("show"), 2800);
+}
+
+// Web Audio API 合成擬真紙張翻動沙沙聲（零外部音檔依賴）
+function playFlipSound() {
+  if (!soundEnabled) return;
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!playFlipSound._ctx) playFlipSound._ctx = new AudioCtx();
+    const ctx = playFlipSound._ctx;
+    if (ctx.state === "suspended") ctx.resume();
+
+    const duration = 0.24;
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      const env = Math.sin((i / bufferSize) * Math.PI);
+      data[i] = (Math.random() * 2 - 1) * env * 0.28;
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(950, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(2200, ctx.currentTime + duration);
+    filter.Q.value = 1.2;
+
+    noise.connect(filter);
+    filter.connect(ctx.destination);
+    noise.start();
+  } catch (e) {}
+}
+
+function matchPageMetadata(filename, fallbackIndex) {
+  for (const key of Object.keys(KNOWN_PAGE_MAP)) {
+    if (filename.includes(key)) {
+      return KNOWN_PAGE_MAP[key];
+    }
+  }
+  const cleanName = filename.replace(/\.[^.]+$/, "");
+  return {
+    label: `第 ${fallbackIndex} 張`,
+    title: cleanName
+  };
+}
+
+function updateUI() {
+  if (pages.length === 0) pages = [...DEFAULT_DEMO_PAGES];
+  if (currentIndex >= pages.length) currentIndex = pages.length - 1;
+  if (currentIndex < 0) currentIndex = 0;
+
+  const item = pages[currentIndex];
+  currentImg.src = item.src;
+  pageInfo.textContent = `【${item.label}】${item.title}（${currentIndex + 1} / ${pages.length}）`;
+  pageSlider.max = Math.max(0, pages.length - 1);
+  pageSlider.value = currentIndex;
+
+  const isReal = !pages[0].isDemo;
+  modeBadge.textContent = isReal ? `已載入 ${pages.length} 頁書頁` : "示範預覽模式";
+  renderThumbnails();
+}
+
+function applyTransform(instant = false) {
+  if (instant) pageViewport.classList.add("no-transition");
+  else pageViewport.classList.remove("no-transition");
+
+  pageViewport.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
+  if (zoomScale > 1.02) {
+    bookCard.classList.add("zoomed");
+    resetZoomBtn.style.display = "inline-flex";
+  } else {
+    bookCard.classList.remove("zoomed");
+    resetZoomBtn.style.display = "none";
+  }
+}
+
+function resetZoom(instant = false) {
+  zoomScale = 1;
+  panX = 0;
+  panY = 0;
+  applyTransform(instant);
+}
+
+// 3D 立體翻頁轉場
+function goToPage(targetIndex, with3D = true) {
+  if (isFlipping) return;
+  if (targetIndex < 0 || targetIndex >= pages.length || targetIndex === currentIndex) return;
+
+  stopKenBurns();
+  resetZoom(true);
+
+  if (!with3D) {
+    currentIndex = targetIndex;
+    updateUI();
+    return;
+  }
+
+  isFlipping = true;
+  const forward = targetIndex > currentIndex;
+  const oldSrc = pages[currentIndex].src;
+  const newSrc = pages[targetIndex].src;
+
+  playFlipSound();
+
+  // 底層先切換為目標頁，覆蓋層執行動態折疊翻轉
+  currentIndex = targetIndex;
+  updateUI();
+
+  flipOverlay.innerHTML = "";
+  flipOverlay.style.display = "block";
+
+  const leaf = document.createElement("div");
+  leaf.className = "flip-leaf " + (forward ? "right-half" : "left-half");
+
+  const front = document.createElement("div");
+  front.className = "flip-face flip-front";
+  front.innerHTML = `<img src="${oldSrc}"><div class="flip-shade"></div>`;
+
+  const back = document.createElement("div");
+  back.className = "flip-face flip-back";
+  back.innerHTML = `<img src="${newSrc}"><div class="flip-shade"></div>`;
+
+  leaf.appendChild(front);
+  leaf.appendChild(back);
+  flipOverlay.appendChild(leaf);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      leaf.style.transform = forward ? "rotateY(-180deg)" : "rotateY(180deg)";
+    });
+  });
+
+  setTimeout(() => {
+    flipOverlay.style.display = "none";
+    flipOverlay.innerHTML = "";
+    isFlipping = false;
+  }, 700);
+}
+
+// 讀取並適度優化畫質（保留高解析度同時控制單一 HTML 體積）
+function compressImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 1920;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxW) {
+          h = Math.round((h * maxW) / w);
+          w = maxW;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.86);
+        resolve(dataUrl);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// 累積分批匯入處理
+async function handleBatchFiles(fileList) {
+  const imageFiles = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+  if (imageFiles.length === 0) {
+    showToast("⚠️ 請選擇圖片檔案（JPG / PNG / WebP）");
+    return;
+  }
+
+  // 依檔名自然數字順序排列
+  imageFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+
+  showToast(`⏳ 正在處理 ${imageFiles.length} 張書頁照片...`);
+
+  // 若目前仍為示範預覽頁，第一次匯入時自動取代
+  if (pages.length > 0 && pages[0].isDemo) {
+    pages = [];
+    currentIndex = 0;
+  }
+
+  const startCount = pages.length;
+  for (let i = 0; i < imageFiles.length; i++) {
+    const file = imageFiles[i];
+    const dataUrl = await compressImageFile(file);
+    const meta = matchPageMetadata(file.name, pages.length + 1);
+    pages.push({
+      name: file.name,
+      label: meta.label,
+      title: meta.title,
+      src: dataUrl,
+      isDemo: false
+    });
+  }
+
+  // 若本次之前原本是空的，停在第 0 頁；若是後續追加，自動跳到本次新增的第一張方便檢視
+  if (startCount === 0) {
+    currentIndex = 0;
+  } else {
+    currentIndex = startCount;
+  }
+
+  resetZoom(true);
+  updateUI();
+  showToast(`✅ 本次新增 ${imageFiles.length} 張，目前共 ${pages.length} 頁！`);
+}
+
+// 縮圖目錄管理
+function renderThumbnails() {
+  const grid = document.getElementById("thumb-grid");
+  grid.innerHTML = "";
+  pages.forEach((p, idx) => {
+    const card = document.createElement("div");
+    card.className = "thumb-card" + (idx === currentIndex ? " active" : "");
+    card.innerHTML = `
+      <img src="${p.src}" alt="${p.label}">
+      <div class="thumb-title">${idx + 1}. ${p.label}｜${p.title}</div>
+      <div class="thumb-actions">
+        <button data-act="prev" title="往前移">◀</button>
+        <button data-act="next" title="往後移">▶</button>
+        <button data-act="del" class="danger" title="刪除此頁">✕</button>
+      </div>
+    `;
+    card.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (btn) {
+        e.stopPropagation();
+        const act = btn.dataset.act;
+        if (act === "prev" && idx > 0) {
+          [pages[idx - 1], pages[idx]] = [pages[idx], pages[idx - 1]];
+          if (currentIndex === idx) currentIndex--;
+          else if (currentIndex === idx - 1) currentIndex++;
+          updateUI();
+        } else if (act === "next" && idx < pages.length - 1) {
+          [pages[idx + 1], pages[idx]] = [pages[idx], pages[idx + 1]];
+          if (currentIndex === idx) currentIndex++;
+          else if (currentIndex === idx + 1) currentIndex--;
+          updateUI();
+        } else if (act === "del") {
+          pages.splice(idx, 1);
+          if (pages.length === 0) pages = [...DEFAULT_DEMO_PAGES];
+          if (currentIndex >= pages.length) currentIndex = pages.length - 1;
+          updateUI();
+        }
+        return;
+      }
+      goToPage(idx, true);
+    });
+    grid.appendChild(card);
+  });
+}
+
+// 自動運鏡模式（依序特寫左頁文字 -> 右頁插畫 -> 還原全頁）
+function stopKenBurns() {
+  if (kenBurnsTimer) {
+    clearTimeout(kenBurnsTimer);
+    kenBurnsTimer = null;
+    document.getElementById("kenburns-btn").classList.remove("active-toggle");
+  }
+}
+
+function startKenBurns() {
+  stopKenBurns();
+  document.getElementById("kenburns-btn").classList.add("active-toggle");
+  const w = bookCard.clientWidth;
+
+  // 步驟 1：特寫左半頁
+  zoomScale = 1.65;
+  panX = w * 0.32;
+  panY = 0;
+  applyTransform(false);
+
+  kenBurnsTimer = setTimeout(() => {
+    // 步驟 2：平滑運鏡至右半頁
+    panX = -w * 0.32;
+    applyTransform(false);
+
+    kenBurnsTimer = setTimeout(() => {
+      // 步驟 3：拉回全頁並自動翻下一頁
+      resetZoom(false);
+      kenBurnsTimer = setTimeout(() => {
+        if (currentIndex < pages.length - 1) {
+          goToPage(currentIndex + 1, true);
+          setTimeout(startKenBurns, 800);
+        } else {
+          stopKenBurns();
+          showToast("🎬 全書自動運鏡播放完畢");
+        }
+      }, 1400);
+    }, 2800);
+  }, 2600);
+}
+
+// 點擊局部放大與拖曳平移
+bookCard.addEventListener("pointerdown", (e) => {
+  if (isFlipping) return;
+  stopKenBurns();
+  isDragging = true;
+  hasMovedDuringDrag = false;
+  dragStartX = e.clientX - panX;
+  dragStartY = e.clientY - panY;
+});
+
+window.addEventListener("pointermove", (e) => {
+  if (!isDragging) return;
+  const nx = e.clientX - dragStartX;
+  const ny = e.clientY - dragStartY;
+  if (Math.abs(nx - panX) > 5 || Math.abs(ny - panY) > 5) {
+    hasMovedDuringDrag = true;
+  }
+  if (zoomScale > 1.02) {
+    panX = nx;
+    panY = ny;
+    applyTransform(true);
+  }
+});
+
+window.addEventListener("pointerup", (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  // 若在未放大狀態下左右滑動超過 60px，觸發触控翻頁
+  if (zoomScale <= 1.02 && hasMovedDuringDrag) {
+    const dx = (e.clientX - dragStartX) - panX;
+    if (dx < -60) goToPage(currentIndex + 1, true);
+    else if (dx > 60) goToPage(currentIndex - 1, true);
+    return;
+  }
+
+  // 純點擊：切換局部特寫放大 / 還原
+  if (!hasMovedDuringDrag) {
+    if (zoomScale > 1.02) {
+      resetZoom(false);
+    } else {
+      const rect = bookCard.getBoundingClientRect();
+      const clickX = e.clientX - rect.left - rect.width / 2;
+      const clickY = e.clientY - rect.top - rect.height / 2;
+      zoomScale = 1.95;
+      panX = -clickX * (zoomScale - 1);
+      panY = -clickY * (zoomScale - 1);
+      applyTransform(false);
+    }
+  }
+});
+
+// 滾輪微調縮放倍率
+bookCard.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  stopKenBurns();
+  const delta = e.deltaY < 0 ? 0.25 : -0.25;
+  zoomScale = Math.min(3.5, Math.max(1, zoomScale + delta));
+  if (zoomScale === 1) {
+    panX = 0;
+    panY = 0;
+  }
+  applyTransform(true);
+}, { passive: false });
+
+// 匯出包含所有已匯入照片的獨立離線 HTML 檔
+document.getElementById("export-btn").addEventListener("click", () => {
+  if (pages.length === 0 || pages[0].isDemo) {
+    showToast("⚠️ 請先匯入至少 1 張書頁照片再匯出離線版！");
+    return;
+  }
+  showToast("📦 正在打包單一離線 HTML 檔案...");
+  setTimeout(() => {
+    const docHtml = "<!DOCTYPE html>
+" + document.documentElement.outerHTML;
+    const serialized = JSON.stringify(pages);
+    const markerRegex = /\/\*__EMBEDDED_PAGES__\*\/[\s\S]*?\/\*__END_EMBEDDED_PAGES__\*\//;
+    const finalHtml = docHtml.replace(
+      markerRegex,
+      `/*__EMBEDDED_PAGES__*/ ${serialized} /*__END_EMBEDDED_PAGES__*/`
+    );
+
+    const blob = new Blob([finalHtml], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `萬能的機器人_3D互動電子書_共${pages.length}頁離線版.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast(`🎉 已匯出離線單一 HTML（共 ${pages.length} 頁）！`);
+  }, 120);
+});
+
+// 按鈕與快捷鍵綁定
+document.getElementById("file-input").addEventListener("change", (e) => {
+  handleBatchFiles(e.target.files);
+  e.target.value = "";
+});
+document.getElementById("drawer-file-input").addEventListener("change", (e) => {
+  handleBatchFiles(e.target.files);
+  e.target.value = "";
+});
+
+document.getElementById("prev-btn").addEventListener("click", () => goToPage(currentIndex - 1, true));
+document.getElementById("next-btn").addEventListener("click", () => goToPage(currentIndex + 1, true));
+pageSlider.addEventListener("input", (e) => goToPage(parseInt(e.target.value, 10), false));
+resetZoomBtn.addEventListener("click", () => resetZoom(false));
+
+document.getElementById("enhance-btn").addEventListener("click", (e) => {
+  enhanceEnabled = !enhanceEnabled;
+  document.body.classList.toggle("enhance-on", enhanceEnabled);
+  e.currentTarget.classList.toggle("active-toggle", enhanceEnabled);
+  showToast(enhanceEnabled ? "✨ 已開啟抗反光與文字清晰增強" : "🖼️ 已切換為原始影像色彩");
+});
+
+document.getElementById("sound-btn").addEventListener("click", (e) => {
+  soundEnabled = !soundEnabled;
+  e.currentTarget.classList.toggle("active-toggle", soundEnabled);
+});
+
+document.getElementById("kenburns-btn").addEventListener("click", () => {
+  if (kenBurnsTimer) stopKenBurns();
+  else startKenBurns();
+});
+
+document.getElementById("fullscreen-btn").addEventListener("click", () => {
+  document.body.classList.add("clean-mode");
+  document.getElementById("topbar").classList.add("hidden-bar");
+  document.getElementById("bottombar").classList.add("hidden-bar");
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+});
+
+document.getElementById("restore-ui-btn").addEventListener("click", () => {
+  document.body.classList.remove("clean-mode");
+  document.getElementById("topbar").classList.remove("hidden-bar");
+  document.getElementById("bottombar").classList.remove("hidden-bar");
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+});
+
+document.getElementById("drawer-btn").addEventListener("click", () => {
+  document.getElementById("drawer").classList.toggle("open");
+});
+document.getElementById("close-drawer-btn").addEventListener("click", () => {
+  document.getElementById("drawer").classList.remove("open");
+});
+
+document.getElementById("clear-btn").addEventListener("click", () => {
+  stopKenBurns();
+  resetZoom(true);
+  pages = [...DEFAULT_DEMO_PAGES];
+  currentIndex = 0;
+  updateUI();
+  showToast("🗑️ 已清空並恢復預設預覽頁");
+});
+
+// 全視窗拖曳匯入
+const dropMask = document.getElementById("drop-zone-mask");
+window.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropMask.classList.add("active");
+});
+dropMask.addEventListener("dragleave", () => dropMask.classList.remove("active"));
+window.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropMask.classList.remove("active");
+  if (e.dataTransfer && e.dataTransfer.files) {
+    handleBatchFiles(e.dataTransfer.files);
+  }
+});
+
+// 鍵盤操作支援
+window.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === " ") {
+    e.preventDefault();
+    goToPage(currentIndex + 1, true);
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    goToPage(currentIndex - 1, true);
+  } else if (e.key === "Escape") {
+    if (zoomScale > 1.02) resetZoom(false);
+    else if (document.body.classList.contains("clean-mode")) {
+      document.getElementById("restore-ui-btn").click();
+    }
+  }
+});
+
+updateUI();
+</script>
+</body>
+</html>
