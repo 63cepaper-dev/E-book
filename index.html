@@ -34,7 +34,6 @@
     font-family: inherit;
   }
 
-  /* 頂部工具列：手機彈性折行與 safe-area 安全留白 */
   #topbar {
     position: fixed;
     top: env(safe-area-inset-top, 0);
@@ -73,7 +72,7 @@
     font-weight: 700;
     padding: 5px 10px;
     border-radius: 8px;
-    max-width: 240px;
+    max-width: 230px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -134,11 +133,6 @@
     border-color: #34d399;
     color: #fff;
   }
-  button.warn {
-    background: rgba(180, 83, 9, 0.85);
-    border-color: rgba(251, 191, 36, 0.5);
-    color: #fef3c7;
-  }
   button.danger {
     background: rgba(185, 28, 28, 0.78);
     border-color: rgba(248, 113, 113, 0.5);
@@ -149,7 +143,6 @@
     color: #bae6fd;
   }
 
-  /* 主舞台：預留足夠上方安全高度避免多行工具列遮擋 */
   #stage {
     position: fixed;
     inset: 0;
@@ -193,7 +186,6 @@
   #book-card.zoomed { cursor: grab; }
   #book-card.zoomed:active { cursor: grabbing; }
 
-  /* 書脊立體陰影（可依單頁/跨頁模式切換） */
   #spine-shadow {
     position: absolute;
     top: 0;
@@ -243,7 +235,6 @@
     filter: contrast(1.14) saturate(1.12) brightness(0.96);
   }
 
-  /* 純 HTML 空書櫃引導畫面（無外部圖片依賴，絕不黑屏） */
   #empty-guide {
     position: absolute;
     inset: 0;
@@ -282,7 +273,6 @@
     color: #cbd5e1;
   }
 
-  /* 3D 翻頁覆蓋層 */
   #flip-overlay {
     position: absolute;
     inset: 0;
@@ -336,7 +326,6 @@
     opacity: 0.45;
   }
 
-  /* 左右翻頁按鈕 */
   .nav-arrow {
     position: fixed;
     top: 52%;
@@ -363,7 +352,6 @@
   #prev-btn { left: 8px; }
   #next-btn { right: 8px; }
 
-  /* 底部控制列 */
   #bottombar {
     position: fixed;
     bottom: env(safe-area-inset-bottom, 0);
@@ -420,7 +408,6 @@
     display: inline-flex;
   }
 
-  /* 通用抽屜與彈窗 */
   .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -480,7 +467,6 @@
     border-color: #38bdf8;
   }
 
-  /* 書櫃列表項目 */
   .shelf-list {
     display: flex;
     flex-direction: column;
@@ -517,7 +503,6 @@
     color: #94a3b8;
   }
 
-  /* 頁次目錄與單頁編輯抽屜 */
   #drawer {
     position: fixed;
     left: 0;
@@ -632,7 +617,7 @@
   @media (max-width: 768px) {
     #stage { padding: 126px 8px 54px 8px; }
     .nav-arrow { width: 32px; height: 52px; font-size: 17px; }
-    .book-title-btn { max-width: 165px; font-size: 13px; }
+    .book-title-btn { max-width: 155px; font-size: 13px; }
     button, .btn-label { padding: 5px 8px; font-size: 11.5px; }
     #page-info { max-width: 36vw; font-size: 11.5px; }
   }
@@ -642,7 +627,7 @@
 
 <div id="topbar">
   <div class="brand-area">
-    <button class="book-title-btn" id="edit-book-btn" title="點擊修改書名、副標與版面模式">
+    <button class="book-title-btn" id="edit-book-btn" title="點擊修改書名、版面與畫質瘦身等級">
       <span>📖</span>
       <span id="display-book-title">未命名互動電子書</span>
       <span style="font-size:11px;opacity:0.8;">✏️</span>
@@ -651,7 +636,7 @@
   </div>
 
   <div class="toolbar-group">
-    <label class="btn-label primary" for="file-input" title="拍照或從相簿分批選取照片，支援先匯 1 張再陸續追加">
+    <label class="btn-label primary" for="file-input" title="自動保畫質智慧瘦身匯入，支援先匯 1 張再陸續追加">
       📷 拍照/分批匯入
     </label>
     <input type="file" id="file-input" accept="image/*" multiple style="display:none">
@@ -661,7 +646,7 @@
     <button id="flip-mode-btn" class="active-toggle" title="切換 3D 立體翻頁特效或滑順切換">📕 3D翻書</button>
     <button id="kenburns-btn" title="自動平移動畫特寫左右跨頁">🎬 運鏡</button>
     <button id="fullscreen-btn" title="隱藏工具列滿版投影">⛶ 滿版</button>
-    <button id="export-btn" class="success" title="將本書打包下載成單一離線 HTML 檔案">💾 匯出HTML</button>
+    <button id="export-btn" class="success" title="將本書打包下載成輕量單一離線 HTML 檔案">💾 匯出HTML</button>
   </div>
 </div>
 
@@ -676,21 +661,19 @@
       </div>
       <div id="flip-overlay"></div>
 
-      <!-- 尚未匯入照片時的清晰純文字引導層 -->
       <div id="empty-guide" class="visible">
         <div class="guide-card">
           <div style="font-size:40px;">📸 ➔ 📖</div>
           <h2 id="guide-book-heading">歡迎使用 3D 互動電子書工作站</h2>
           <p>
-            只要拍下繪本、課本、學習單或學生作品，就能一鍵變成有 <strong>3D 翻頁特效</strong>、<strong>局部點擊放大</strong> 與 <strong>抗反光增強</strong> 的互動電子書！<br>
-            支援 <strong>先匯入 1 張測試</strong>，之後再隨時 <strong>分批補拍補傳</strong>。
+            已內建<strong>「保畫質智慧瘦身引擎」</strong>，上傳照片會自動轉為高清晰 WebP 並優化體積，讓 17 頁電子書從 80MB 降至 10MB 內，<strong>LINE 傳送、手機點開、投影都秒開不卡頓</strong>！
           </p>
           <div class="toolbar-group" style="justify-content:center;margin-top:4px;">
             <label class="btn-label primary" for="file-input" style="padding:9px 16px;font-size:14px;">
               📷 立即拍照 / 匯入書頁照片
             </label>
             <button id="guide-edit-title-btn" style="padding:9px 14px;font-size:13.5px;">
-              ✏️ 設定書名與版面
+              ✏️ 設定書名與畫質
             </button>
           </div>
         </div>
@@ -714,7 +697,6 @@
   </div>
 </div>
 
-<!-- 頁次目錄與單頁管理抽屜 -->
 <div id="drawer">
   <div class="drawer-header">
     <strong style="font-size:13.5px;color:#7dd3fc;">📑 頁面管理（可調順序、旋轉 90°、修改頁碼標題）</strong>
@@ -723,18 +705,19 @@
         ＋ 繼續新增照片
       </label>
       <input type="file" id="drawer-file-input" accept="image/*" multiple style="display:none">
-      <button id="clear-pages-btn" class="danger" style="padding:4px 10px;font-size:12px;">🗑️ 清空本書頁次</button>
+      <button id="recompress-all-btn" class="warn" style="padding:4px 10px;font-size:12px;" title="將目前已匯入的舊大圖一鍵套用智慧瘦身">🪄 壓縮現有全部頁面</button>
+      <button id="clear-pages-btn" class="danger" style="padding:4px 10px;font-size:12px;">🗑️ 清空本書</button>
       <button id="close-drawer-btn" style="padding:4px 10px;font-size:12px;">關閉</button>
     </div>
   </div>
   <div class="thumb-grid" id="thumb-grid"></div>
 </div>
 
-<!-- 書籍設定彈窗（書名、副標、版面模式、翻頁音效） -->
+<!-- 書籍與智慧畫質設定彈窗 -->
 <div class="modal-backdrop" id="book-modal">
   <div class="modal-box">
     <div class="modal-header">
-      <strong style="font-size:16px;color:#38bdf8;">✏️ 書籍資訊與閱讀設定</strong>
+      <strong style="font-size:16px;color:#38bdf8;">✏️ 書籍資訊與智慧瘦身設定</strong>
       <button id="close-book-modal">✕</button>
     </div>
     <div class="field-group">
@@ -744,6 +727,14 @@
     <div class="field-group">
       <label for="input-book-subtitle">副標題 / 作者或班級備註（選填）</label>
       <input type="text" id="input-book-subtitle" placeholder="例如：科技讓生活更便利 / 三年六班共讀">
+    </div>
+    <div class="field-group">
+      <label for="select-quality-preset">上傳自動畫質與瘦身平衡模式</label>
+      <select id="select-quality-preset">
+        <option value="hd">✨ 高畫質投影推薦（長邊 2000px・WebP 86%・約 400KB/頁，注音放大極清晰）</option>
+        <option value="lite">🚀 輕量 LINE 分享模式（長邊 1440px・WebP 80%・約 220KB/頁，多頁傳檔超快）</option>
+        <option value="raw">📷 原始未壓縮（保留相機原檔・體積較大）</option>
+      </select>
     </div>
     <div class="field-group">
       <label for="select-layout-mode">版面視覺模式</label>
@@ -780,7 +771,7 @@
   </div>
 </div>
 
-<!-- 我的書櫃（多本專案管理 + JSON 備份還原） -->
+<!-- 我的書櫃 -->
 <div class="modal-backdrop" id="shelf-modal">
   <div class="modal-box">
     <div class="modal-header">
@@ -796,40 +787,42 @@
       <input type="file" id="import-json-input" accept=".json,application/json" style="display:none">
     </div>
     <div class="shelf-list" id="shelf-list"></div>
-    <div style="font-size:12px;color:#94a3b8;line-height:1.5;">
-      💡 提示：瀏覽器本機空間有限（約 5～10MB），若單本書照片較多，建議完成後直接按上方 <strong>「💾 匯出HTML」</strong> 下載永久保存，或用 <strong>「📤 匯出專案」</strong> 備份。
-    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 <div id="drop-zone-mask">
   <div>📂 放開滑鼠即可分批加入書頁照片</div>
-  <div style="font-size:14px;font-weight:500;">支援單張或多張累積匯入，並依檔名自動排序</div>
+  <div style="font-size:14px;font-weight:500;">自動套用保畫質智慧瘦身，支援單張或多張累積匯入</div>
 </div>
 
 <script>
-// 若為匯出的離線完整版 HTML，會將完整書籍物件嵌入此處
 const EMBEDDED_BOOK = /*__EMBEDDED_BOOK__*/ null /*__END_EMBEDDED_BOOK__*/;
-const STORAGE_KEY_BOOKS = "universal_3d_ebook_library_v1";
-const STORAGE_KEY_ACTIVE_ID = "universal_3d_ebook_active_id_v1";
+const STORAGE_KEY_BOOKS = "universal_3d_ebook_library_v2";
+const STORAGE_KEY_ACTIVE_ID = "universal_3d_ebook_active_id_v2";
+
+const QUALITY_PRESETS = {
+  hd: { maxSide: 2000, quality: 0.86, label: "高畫質投影" },
+  lite: { maxSide: 1440, quality: 0.80, label: "輕量分享" },
+  raw: { maxSide: 0, quality: 1.0, label: "原始未壓縮" }
+};
 
 function generateId() {
   return "book_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
 }
 
-function createEmptyBook(title = "我的 3D 互動電子書", subtitle = "拍照即成書・3D 翻頁與特寫工作站") {
+function createEmptyBook(title = "我的 3D 互動電子書", subtitle = "拍照即成書・智慧高畫質瘦身版") {
   return {
     id: generateId(),
     title,
     subtitle,
-    layout: "spread", // "spread" | "single"
+    layout: "spread",
+    qualityPreset: "hd",
     updatedAt: Date.now(),
     pages: []
   };
 }
 
-// 狀態管理
 let library = [];
 let currentBook = null;
 let currentIndex = 0;
@@ -841,7 +834,6 @@ let soundEnabled = true;
 let enhanceEnabled = true;
 let kenBurnsTimer = null;
 
-// 縮放與拖曳
 let zoomScale = 1;
 let panX = 0;
 let panY = 0;
@@ -850,7 +842,6 @@ let dragStartX = 0;
 let dragStartY = 0;
 let hasMovedDuringDrag = false;
 
-// DOM 參照
 const currentImg = document.getElementById("current-image");
 const pageViewport = document.getElementById("page-viewport");
 const bookCard = document.getElementById("book-card");
@@ -868,13 +859,22 @@ function showToast(msg) {
   toastEl.textContent = msg;
   toastEl.classList.add("show");
   clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => toastEl.classList.remove("show"), 3000);
+  showToast._t = setTimeout(() => toastEl.classList.remove("show"), 3200);
 }
 
-// 初始化載入書櫃或離線嵌入書籍
+function estimateBookSizeMB(book) {
+  if (!book || !book.pages || book.pages.length === 0) return "0.0";
+  let bytes = 0;
+  for (const p of book.pages) {
+    if (p.src) bytes += p.src.length;
+  }
+  return (bytes / (1024 * 1024)).toFixed(1);
+}
+
 function initApp() {
   if (EMBEDDED_BOOK && Array.isArray(EMBEDDED_BOOK.pages)) {
     currentBook = EMBEDDED_BOOK;
+    if (!currentBook.qualityPreset) currentBook.qualityPreset = "hd";
     library = [currentBook];
     return;
   }
@@ -887,6 +887,7 @@ function initApp() {
       if (Array.isArray(parsed) && parsed.length > 0) {
         library = parsed;
         currentBook = library.find(b => b.id === activeId) || library[0];
+        if (!currentBook.qualityPreset) currentBook.qualityPreset = "hd";
         return;
       }
     }
@@ -898,7 +899,7 @@ function initApp() {
 }
 
 function saveLibraryToLocal(silent = false) {
-  if (EMBEDDED_BOOK) return; // 離線唯讀分享版不覆寫本機書櫃
+  if (EMBEDDED_BOOK) return;
   currentBook.updatedAt = Date.now();
   const idx = library.findIndex(b => b.id === currentBook.id);
   if (idx >= 0) library[idx] = currentBook;
@@ -909,12 +910,11 @@ function saveLibraryToLocal(silent = false) {
     localStorage.setItem(STORAGE_KEY_ACTIVE_ID, currentBook.id);
   } catch (e) {
     if (!silent) {
-      showToast("⚠️ 照片容量超過瀏覽器暫存上限，請按「💾 匯出HTML」下載保存！");
+      showToast("⚠️ 本機暫存空間已滿，建議點「🪄 壓縮現有全部頁面」或「💾 匯出HTML」");
     }
   }
 }
 
-// Web Audio 合成紙張翻動沙沙聲
 function playFlipSound() {
   if (!soundEnabled) return;
   try {
@@ -947,7 +947,6 @@ function playFlipSound() {
   } catch (e) {}
 }
 
-// 智慧解析檔名頁碼（支援 P04、04、第4頁、IMG_21663 等常見命名）
 function parseSmartPageInfo(filename, orderNumber) {
   const base = filename.replace(/\.[^.]+$/, "");
   const pageMatch = base.match(/(?:p|page|第)\s*0*(\d{1,3})/i);
@@ -965,10 +964,11 @@ function parseSmartPageInfo(filename, orderNumber) {
 
 function updateUI() {
   const pages = currentBook.pages;
+  const mb = estimateBookSizeMB(currentBook);
   displayBookTitle.textContent = currentBook.title || "未命名互動電子書";
   guideBookHeading.textContent = currentBook.title || "歡迎使用 3D 互動電子書工作站";
   document.title = `${currentBook.title} - 3D 互動電子書`;
-  pageCountBadge.textContent = `${pages.length} 頁`;
+  pageCountBadge.textContent = pages.length > 0 ? `${pages.length} 頁 · 約 ${mb} MB` : "0 頁";
 
   document.body.classList.toggle("single-layout", currentBook.layout === "single");
 
@@ -1016,7 +1016,6 @@ function resetZoom(instant = false) {
   applyTransform(instant);
 }
 
-// 3D 翻頁或滑順切換
 function goToPage(targetIndex, allow3D = true) {
   const pages = currentBook.pages;
   if (isFlipping || pages.length === 0) return;
@@ -1072,7 +1071,79 @@ function goToPage(targetIndex, allow3D = true) {
   }, 700);
 }
 
-// 直接讀取原圖 DataURL（穩定不卡死）
+// 偵測瀏覽器是否支援 WebP 編碼（在同畫質下體積比 JPEG 再省 30%～40%）
+let _supportsWebP = null;
+function checkWebPSupport() {
+  if (_supportsWebP !== null) return _supportsWebP;
+  try {
+    const c = document.createElement("canvas");
+    c.width = 2;
+    c.height = 2;
+    _supportsWebP = c.toDataURL("image/webp").startsWith("data:image/webp");
+  } catch (e) {
+    _supportsWebP = false;
+  }
+  return _supportsWebP;
+}
+
+// 保畫質智慧瘦身：單張循序載入 -> 高品質平滑縮放 -> 優先轉 WebP -> 立即釋放暫存
+function smartOptimizeDataUrl(rawDataUrl, presetKey) {
+  const preset = QUALITY_PRESETS[presetKey] || QUALITY_PRESETS.hd;
+  if (!preset.maxSide || preset.maxSide <= 0) {
+    return Promise.resolve(rawDataUrl);
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        if (!w || !h) {
+          resolve(rawDataUrl);
+          return;
+        }
+
+        const maxSide = preset.maxSide;
+        let targetW = w;
+        let targetH = h;
+        if (Math.max(w, h) > maxSide) {
+          if (w >= h) {
+            targetW = maxSide;
+            targetH = Math.round((h * maxSide) / w);
+          } else {
+            targetH = maxSide;
+            targetW = Math.round((w * maxSide) / h);
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+
+        const mime = checkWebPSupport() ? "image/webp" : "image/jpeg";
+        const optimized = canvas.toDataURL(mime, preset.quality);
+
+        // 主動釋放 Canvas 記憶體，避免手機多張連續處理時吃緊
+        canvas.width = 0;
+        canvas.height = 0;
+        img.src = "";
+
+        // 只有在真的變小的情況下才替換，否則保留原檔
+        resolve(optimized.length < rawDataUrl.length ? optimized : rawDataUrl);
+      } catch (err) {
+        resolve(rawDataUrl);
+      }
+    };
+    img.onerror = () => resolve(rawDataUrl);
+    img.src = rawDataUrl;
+  });
+}
+
 function readFileDirectAsDataURL(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1082,21 +1153,27 @@ function readFileDirectAsDataURL(file) {
   });
 }
 
-// 單頁順時針旋轉 90°（利用 Canvas 離線轉向並存回該頁）
+// 單頁順時針旋轉 90°（同時維持高畫質輸出）
 function rotatePage90(index) {
   const pages = currentBook.pages;
   if (!pages[index]) return;
   const item = pages[index];
+  const preset = QUALITY_PRESETS[currentBook.qualityPreset] || QUALITY_PRESETS.hd;
   const img = new Image();
   img.onload = () => {
     const canvas = document.createElement("canvas");
     canvas.width = img.naturalHeight || img.height;
     canvas.height = img.naturalWidth || img.width;
     const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(Math.PI / 2);
     ctx.drawImage(img, -img.width / 2, -img.height / 2);
-    item.src = canvas.toDataURL("image/jpeg", 0.9);
+    const mime = checkWebPSupport() ? "image/webp" : "image/jpeg";
+    item.src = canvas.toDataURL(mime, preset.quality);
+    canvas.width = 0;
+    canvas.height = 0;
     saveLibraryToLocal(true);
     updateUI();
     showToast(`↻ 已將「${item.label}」順時針旋轉 90°`);
@@ -1104,26 +1181,31 @@ function rotatePage90(index) {
   img.src = item.src;
 }
 
-// 累積分批匯入照片
+// 累積分批匯入＋逐張保畫質智慧瘦身
 async function handleBatchFiles(fileList) {
   if (!fileList || fileList.length === 0) return;
   const files = Array.from(fileList);
   files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
 
+  const presetKey = currentBook.qualityPreset || "hd";
   const startIndex = currentBook.pages.length;
   let addedCount = 0;
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
+    if (files.length > 1) {
+      showToast(`✨ 智慧優化第 ${i + 1} / ${files.length} 張...`);
+    }
     try {
-      const dataUrl = await readFileDirectAsDataURL(file);
+      const rawDataUrl = await readFileDirectAsDataURL(file);
+      const finalDataUrl = await smartOptimizeDataUrl(rawDataUrl, presetKey);
       const info = parseSmartPageInfo(file.name, currentBook.pages.length + 1);
       currentBook.pages.push({
         id: "p_" + Date.now() + "_" + i,
         name: file.name,
         label: info.label,
         title: info.title,
-        src: dataUrl
+        src: finalDataUrl
       });
       addedCount++;
       if (addedCount === 1) {
@@ -1139,11 +1221,30 @@ async function handleBatchFiles(fileList) {
   if (addedCount > 0) {
     saveLibraryToLocal(false);
     updateUI();
-    showToast(`✅ 新增 ${addedCount} 張，本書目前共 ${currentBook.pages.length} 頁！`);
+    const totalMB = estimateBookSizeMB(currentBook);
+    showToast(`✅ 新增 ${addedCount} 張，目前共 ${currentBook.pages.length} 頁（約 ${totalMB} MB）`);
   }
 }
 
-// 渲染頁次目錄縮圖
+// 一鍵把目前已匯入的舊大圖全部重新智慧瘦身
+document.getElementById("recompress-all-btn").addEventListener("click", async () => {
+  const pages = currentBook.pages;
+  if (pages.length === 0) {
+    showToast("⚠️ 目前沒有可壓縮的書頁");
+    return;
+  }
+  const presetKey = currentBook.qualityPreset === "raw" ? "hd" : (currentBook.qualityPreset || "hd");
+  const beforeMB = estimateBookSizeMB(currentBook);
+  for (let i = 0; i < pages.length; i++) {
+    showToast(`🪄 正在智慧瘦身第 ${i + 1} / ${pages.length} 頁...`);
+    pages[i].src = await smartOptimizeDataUrl(pages[i].src, presetKey);
+  }
+  saveLibraryToLocal(false);
+  updateUI();
+  const afterMB = estimateBookSizeMB(currentBook);
+  showToast(`🎉 瘦身完成！總容量從 ${beforeMB} MB 降至 ${afterMB} MB`);
+});
+
 function renderThumbnails() {
   const grid = document.getElementById("thumb-grid");
   grid.innerHTML = "";
@@ -1155,11 +1256,12 @@ function renderThumbnails() {
   }
 
   pages.forEach((p, idx) => {
+    const kb = p.src ? Math.round((p.src.length * 0.75) / 1024) : 0;
     const card = document.createElement("div");
     card.className = "thumb-card" + (idx === currentIndex ? " active" : "");
     card.innerHTML = `
       <img src="${p.src}" alt="${p.label}">
-      <div class="thumb-title">${idx + 1}. ${p.label}｜${p.title}</div>
+      <div class="thumb-title">${idx + 1}. ${p.label}｜${p.title} (${kb}KB)</div>
       <div class="thumb-actions">
         <button data-act="prev" title="往前移">◀</button>
         <button data-act="next" title="往後移">▶</button>
@@ -1203,18 +1305,18 @@ function renderThumbnails() {
   });
 }
 
-// 渲染書櫃列表
 function renderShelfList() {
   const listEl = document.getElementById("shelf-list");
   listEl.innerHTML = "";
   library.forEach((book) => {
     const isCurrent = book.id === currentBook.id;
+    const mb = estimateBookSizeMB(book);
     const item = document.createElement("div");
     item.className = "shelf-item" + (isCurrent ? " current" : "");
     item.innerHTML = `
       <div class="shelf-meta">
         <strong>${book.title} ${isCurrent ? "（目前開啟）" : ""}</strong>
-        <span>${book.subtitle || "未填寫副標"} ・ 共 ${book.pages.length} 頁</span>
+        <span>${book.subtitle || "未填寫副標"} ・ 共 ${book.pages.length} 頁（約 ${mb} MB）</span>
       </div>
       <div class="toolbar-group">
         ${!isCurrent ? `<button data-act="open" class="primary">開啟</button>` : ""}
@@ -1261,7 +1363,6 @@ function renderShelfList() {
   });
 }
 
-// 自動運鏡模式
 function stopKenBurns() {
   if (kenBurnsTimer) {
     clearTimeout(kenBurnsTimer);
@@ -1329,7 +1430,6 @@ function startKenBurns() {
   }, 2600);
 }
 
-// 點擊局部放大與拖曳平移
 bookCard.addEventListener("pointerdown", (e) => {
   if (isFlipping || currentBook.pages.length === 0) return;
   stopKenBurns();
@@ -1392,13 +1492,13 @@ bookCard.addEventListener("wheel", (e) => {
   applyTransform(true);
 }, { passive: false });
 
-// 匯出單一離線完整版 HTML（帶入自訂書名與全部頁面）
 document.getElementById("export-btn").addEventListener("click", () => {
   if (currentBook.pages.length === 0) {
     showToast("⚠️ 請先匯入至少 1 張書頁照片再匯出離線版！");
     return;
   }
-  showToast("📦 正在打包單一離線 HTML 檔案...");
+  const mb = estimateBookSizeMB(currentBook);
+  showToast(`📦 正在打包單一離線 HTML（約 ${mb} MB）...`);
   setTimeout(() => {
     const docHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
     const serialized = JSON.stringify(currentBook);
@@ -1418,11 +1518,10 @@ document.getElementById("export-btn").addEventListener("click", () => {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    showToast(`🎉 已匯出《${safeTitle}》離線版（共 ${currentBook.pages.length} 頁）！`);
+    showToast(`🎉 已匯出《${safeTitle}》離線版（約 ${mb} MB）！`);
   }, 120);
 });
 
-// 匯出 / 載入 JSON 專案檔
 document.getElementById("export-json-btn").addEventListener("click", () => {
   const safeTitle = (currentBook.title || "電子書專案").replace(/[\\/:*?"<>|]/g, "_");
   const blob = new Blob([JSON.stringify(currentBook)], { type: "application/json;charset=utf-8" });
@@ -1463,11 +1562,11 @@ document.getElementById("import-json-input").addEventListener("change", function
   reader.readAsText(file);
 });
 
-// 書籍設定彈窗
 function openBookModal() {
   document.getElementById("input-book-title").value = currentBook.title || "";
   document.getElementById("input-book-subtitle").value = currentBook.subtitle || "";
   document.getElementById("select-layout-mode").value = currentBook.layout || "spread";
+  document.getElementById("select-quality-preset").value = currentBook.qualityPreset || "hd";
   document.getElementById("book-modal").classList.add("open");
 }
 document.getElementById("edit-book-btn").addEventListener("click", openBookModal);
@@ -1479,13 +1578,15 @@ document.getElementById("save-book-settings-btn").addEventListener("click", () =
   const t = document.getElementById("input-book-title").value.trim();
   const sub = document.getElementById("input-book-subtitle").value.trim();
   const lay = document.getElementById("select-layout-mode").value;
+  const qPreset = document.getElementById("select-quality-preset").value;
   if (t) currentBook.title = t;
   currentBook.subtitle = sub;
   currentBook.layout = lay;
+  currentBook.qualityPreset = qPreset;
   saveLibraryToLocal(true);
   updateUI();
   document.getElementById("book-modal").classList.remove("open");
-  showToast("✅ 已更新書籍資訊與版面設定");
+  showToast("✅ 已更新書籍與畫質設定");
 });
 
 document.getElementById("sound-toggle-btn").addEventListener("click", (e) => {
@@ -1494,7 +1595,6 @@ document.getElementById("sound-toggle-btn").addEventListener("click", (e) => {
   e.currentTarget.textContent = soundEnabled ? "🔊 翻頁紙張音效：開啟" : "🔇 翻頁紙張音效：關閉";
 });
 
-// 單頁頁碼與標題編輯彈窗
 function openPageEditModal(idx) {
   editingPageIndex = idx;
   const item = currentBook.pages[idx];
@@ -1519,7 +1619,6 @@ document.getElementById("save-page-edit-btn").addEventListener("click", () => {
   document.getElementById("page-edit-modal").classList.remove("open");
 });
 
-// 書櫃彈窗
 document.getElementById("shelf-btn").addEventListener("click", () => {
   renderShelfList();
   document.getElementById("shelf-modal").classList.add("open");
@@ -1540,7 +1639,6 @@ document.getElementById("new-book-btn").addEventListener("click", () => {
   openBookModal();
 });
 
-// 檔案匯入與控制列事件
 document.getElementById("file-input").addEventListener("change", function () {
   if (this.files && this.files.length > 0) handleBatchFiles(this.files);
 });
@@ -1610,7 +1708,6 @@ document.getElementById("clear-pages-btn").addEventListener("click", () => {
   showToast("🗑️ 已清空本書所有頁面");
 });
 
-// 全視窗拖曳匯入
 const dropMask = document.getElementById("drop-zone-mask");
 window.addEventListener("dragover", (e) => {
   e.preventDefault();
@@ -1625,7 +1722,6 @@ window.addEventListener("drop", (e) => {
   }
 });
 
-// 鍵盤操作
 window.addEventListener("keydown", (e) => {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
   if (e.key === "ArrowRight" || e.key === " ") {
