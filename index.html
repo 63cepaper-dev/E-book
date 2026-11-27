@@ -34,6 +34,20 @@
     font-family: inherit;
   }
 
+  /* 純閱讀模式隱藏所有編輯與製書按鈕 */
+  body.reader-only .edit-only {
+    display: none !important;
+  }
+  body.reader-only .book-title-btn {
+    cursor: default;
+    border-color: rgba(148, 163, 184, 0.25);
+    background: rgba(30, 41, 59, 0.65);
+  }
+  body.reader-only .book-title-btn:hover {
+    border-color: rgba(148, 163, 184, 0.25);
+    background: rgba(30, 41, 59, 0.65);
+  }
+
   #topbar {
     position: fixed;
     top: env(safe-area-inset-top, 0);
@@ -133,6 +147,11 @@
     border-color: #34d399;
     color: #fff;
   }
+  button.warn {
+    background: rgba(180, 83, 9, 0.85);
+    border-color: rgba(251, 191, 36, 0.5);
+    color: #fef3c7;
+  }
   button.danger {
     background: rgba(185, 28, 28, 0.78);
     border-color: rgba(248, 113, 113, 0.5);
@@ -152,6 +171,9 @@
     padding: 108px 46px 56px 46px;
     perspective: 2400px;
     overflow: hidden;
+  }
+  body.reader-only #stage {
+    padding-top: 72px;
   }
   body.clean-mode #stage {
     padding: 12px 16px;
@@ -467,6 +489,36 @@
     border-color: #38bdf8;
   }
 
+  /* 匯出模式卡片選擇 */
+  .export-option-card {
+    background: #1e293b;
+    border: 1.5px solid rgba(148, 163, 184, 0.35);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+  }
+  .export-option-card:hover {
+    border-color: #38bdf8;
+    background: rgba(2, 132, 199, 0.22);
+  }
+  .export-option-card strong {
+    font-size: 15px;
+    color: #e0f2fe;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .export-option-card p {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #cbd5e1;
+  }
+
   .shelf-list {
     display: flex;
     flex-direction: column;
@@ -616,6 +668,7 @@
 
   @media (max-width: 768px) {
     #stage { padding: 126px 8px 54px 8px; }
+    body.reader-only #stage { padding-top: 96px; }
     .nav-arrow { width: 32px; height: 52px; font-size: 17px; }
     .book-title-btn { max-width: 155px; font-size: 13px; }
     button, .btn-label { padding: 5px 8px; font-size: 11.5px; }
@@ -630,23 +683,23 @@
     <button class="book-title-btn" id="edit-book-btn" title="點擊修改書名、版面與畫質瘦身等級">
       <span>📖</span>
       <span id="display-book-title">未命名互動電子書</span>
-      <span style="font-size:11px;opacity:0.8;">✏️</span>
+      <span class="edit-only" style="font-size:11px;opacity:0.8;">✏️</span>
     </button>
     <span class="badge" id="page-count-badge">0 頁</span>
   </div>
 
   <div class="toolbar-group">
-    <label class="btn-label primary" for="file-input" title="自動保畫質智慧瘦身匯入，支援先匯 1 張再陸續追加">
+    <label class="btn-label primary edit-only" for="file-input" title="自動保畫質智慧瘦身匯入，支援先匯 1 張再陸續追加">
       📷 拍照/分批匯入
     </label>
-    <input type="file" id="file-input" accept="image/*" multiple style="display:none">
+    <input type="file" id="file-input" class="edit-only" accept="image/*" multiple style="display:none">
 
-    <button id="shelf-btn" title="管理多本電子書專案並自動本機儲存">📚 我的書櫃</button>
+    <button id="shelf-btn" class="edit-only" title="管理多本電子書專案並自動本機儲存">📚 我的書櫃</button>
     <button id="enhance-btn" class="active-toggle" title="強化文字對比並降低銅版紙反光">✨ 抗反光</button>
     <button id="flip-mode-btn" class="active-toggle" title="切換 3D 立體翻頁特效或滑順切換">📕 3D翻書</button>
     <button id="kenburns-btn" title="自動平移動畫特寫左右跨頁">🎬 運鏡</button>
     <button id="fullscreen-btn" title="隱藏工具列滿版投影">⛶ 滿版</button>
-    <button id="export-btn" class="success" title="將本書打包下載成輕量單一離線 HTML 檔案">💾 匯出HTML</button>
+    <button id="export-btn" class="success edit-only" title="選擇匯出純閱讀版或完整工作站版">💾 匯出HTML</button>
   </div>
 </div>
 
@@ -666,9 +719,9 @@
           <div style="font-size:40px;">📸 ➔ 📖</div>
           <h2 id="guide-book-heading">歡迎使用 3D 互動電子書工作站</h2>
           <p>
-            已內建<strong>「保畫質智慧瘦身引擎」</strong>，上傳照片會自動轉為高清晰 WebP 並優化體積，讓 17 頁電子書從 80MB 降至 10MB 內，<strong>LINE 傳送、手機點開、投影都秒開不卡頓</strong>！
+            已內建<strong>「保畫質智慧瘦身引擎」</strong>，上傳照片自動優化體積；完成後可自由匯出<strong>「📖 純閱讀分享版」</strong>或<strong>「🛠️ 完整工作站版」</strong>單一離線 HTML！
           </p>
-          <div class="toolbar-group" style="justify-content:center;margin-top:4px;">
+          <div class="toolbar-group edit-only" style="justify-content:center;margin-top:4px;">
             <label class="btn-label primary" for="file-input" style="padding:9px 16px;font-size:14px;">
               📷 立即拍照 / 匯入書頁照片
             </label>
@@ -692,25 +745,58 @@
   </div>
   <div class="toolbar-group">
     <button id="reset-zoom-btn" style="display:none">🔍 還原全頁</button>
-    <button id="rotate-current-btn" title="將目前這一頁順時針旋轉 90°">↻ 轉正</button>
+    <button id="rotate-current-btn" class="edit-only" title="將目前這一頁順時針旋轉 90°">↻ 轉正</button>
     <button id="drawer-btn">📑 頁次目錄</button>
   </div>
 </div>
 
 <div id="drawer">
   <div class="drawer-header">
-    <strong style="font-size:13.5px;color:#7dd3fc;">📑 頁面管理（可調順序、旋轉 90°、修改頁碼標題）</strong>
+    <strong id="drawer-heading" style="font-size:13.5px;color:#7dd3fc;">📑 頁面管理（可調順序、旋轉 90°、修改頁碼標題）</strong>
     <div class="toolbar-group">
-      <label class="btn-label primary" for="drawer-file-input" style="padding:4px 10px;font-size:12px;">
+      <label class="btn-label primary edit-only" for="drawer-file-input" style="padding:4px 10px;font-size:12px;">
         ＋ 繼續新增照片
       </label>
-      <input type="file" id="drawer-file-input" accept="image/*" multiple style="display:none">
-      <button id="recompress-all-btn" class="warn" style="padding:4px 10px;font-size:12px;" title="將目前已匯入的舊大圖一鍵套用智慧瘦身">🪄 壓縮現有全部頁面</button>
-      <button id="clear-pages-btn" class="danger" style="padding:4px 10px;font-size:12px;">🗑️ 清空本書</button>
+      <input type="file" id="drawer-file-input" class="edit-only" accept="image/*" multiple style="display:none">
+      <button id="recompress-all-btn" class="warn edit-only" style="padding:4px 10px;font-size:12px;" title="將目前已匯入的舊大圖一鍵套用智慧瘦身">🪄 壓縮現有全部頁面</button>
+      <button id="clear-pages-btn" class="danger edit-only" style="padding:4px 10px;font-size:12px;">🗑️ 清空本書</button>
       <button id="close-drawer-btn" style="padding:4px 10px;font-size:12px;">關閉</button>
     </div>
   </div>
   <div class="thumb-grid" id="thumb-grid"></div>
+</div>
+
+<!-- 匯出版本選擇彈窗 -->
+<div class="modal-backdrop" id="export-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <strong style="font-size:16px;color:#38bdf8;">💾 選擇離線 HTML 匯出模式</strong>
+      <button id="close-export-modal">✕</button>
+    </div>
+    <div style="font-size:13px;color:#94a3b8;">
+      目前書籍：<strong style="color:#f8fafc;" id="export-summary-text">未命名（0 頁）</strong>
+    </div>
+
+    <div class="export-option-card" id="do-export-reader-btn">
+      <strong>
+        <span>📖 純閱讀分享版（適合學生、家長與家人）</span>
+        <span class="badge">推薦分享</span>
+      </strong>
+      <p>
+        隱藏拍照匯入、書櫃管理、旋轉、刪除與再匯出等編輯工具，介面更簡潔；讀者仍可使用 <strong>3D 翻頁、點擊局部放大、抗反光增強、自動運鏡、滿版投影與頁次目錄跳轉</strong>。
+      </p>
+    </div>
+
+    <div class="export-option-card" id="do-export-studio-btn">
+      <strong>
+        <span>🛠️ 完整工作站版（適合老師與同事協作重製）</span>
+        <span class="badge">可再編輯</span>
+      </strong>
+      <p>
+        保留完整製書工作站功能，打開此檔案的人除了可以閱讀本書，還能繼續 <strong>補拍加頁、調整順序、修改頁碼標題，或建立全新的電子書</strong>。
+      </p>
+    </div>
+  </div>
 </div>
 
 <!-- 書籍與智慧畫質設定彈窗 -->
@@ -798,8 +884,9 @@
 
 <script>
 const EMBEDDED_BOOK = /*__EMBEDDED_BOOK__*/ null /*__END_EMBEDDED_BOOK__*/;
-const STORAGE_KEY_BOOKS = "universal_3d_ebook_library_v2";
-const STORAGE_KEY_ACTIVE_ID = "universal_3d_ebook_active_id_v2";
+const EMBEDDED_READER_ONLY = /*__READER_ONLY__*/ false /*__END_READER_ONLY__*/;
+const STORAGE_KEY_BOOKS = "universal_3d_ebook_library_v3";
+const STORAGE_KEY_ACTIVE_ID = "universal_3d_ebook_active_id_v3";
 
 const QUALITY_PRESETS = {
   hd: { maxSide: 2000, quality: 0.86, label: "高畫質投影" },
@@ -827,6 +914,7 @@ let library = [];
 let currentBook = null;
 let currentIndex = 0;
 let editingPageIndex = -1;
+let isReaderOnly = Boolean(EMBEDDED_READER_ONLY);
 
 let isFlipping = false;
 let flip3DEnabled = true;
@@ -871,7 +959,19 @@ function estimateBookSizeMB(book) {
   return (bytes / (1024 * 1024)).toFixed(1);
 }
 
+function applyReaderModeState() {
+  document.body.classList.toggle("reader-only", isReaderOnly);
+  const drawerHeading = document.getElementById("drawer-heading");
+  if (drawerHeading) {
+    drawerHeading.textContent = isReaderOnly
+      ? "📑 頁次目錄（點擊縮圖即可快速跳轉頁面）"
+      : "📑 頁面管理（可調順序、旋轉 90°、修改頁碼標題）";
+  }
+}
+
 function initApp() {
+  applyReaderModeState();
+
   if (EMBEDDED_BOOK && Array.isArray(EMBEDDED_BOOK.pages)) {
     currentBook = EMBEDDED_BOOK;
     if (!currentBook.qualityPreset) currentBook.qualityPreset = "hd";
@@ -899,7 +999,7 @@ function initApp() {
 }
 
 function saveLibraryToLocal(silent = false) {
-  if (EMBEDDED_BOOK) return;
+  if (EMBEDDED_BOOK || isReaderOnly) return;
   currentBook.updatedAt = Date.now();
   const idx = library.findIndex(b => b.id === currentBook.id);
   if (idx >= 0) library[idx] = currentBook;
@@ -968,7 +1068,12 @@ function updateUI() {
   displayBookTitle.textContent = currentBook.title || "未命名互動電子書";
   guideBookHeading.textContent = currentBook.title || "歡迎使用 3D 互動電子書工作站";
   document.title = `${currentBook.title} - 3D 互動電子書`;
-  pageCountBadge.textContent = pages.length > 0 ? `${pages.length} 頁 · 約 ${mb} MB` : "0 頁";
+
+  if (isReaderOnly) {
+    pageCountBadge.textContent = `共 ${pages.length} 頁`;
+  } else {
+    pageCountBadge.textContent = pages.length > 0 ? `${pages.length} 頁 · 約 ${mb} MB` : "0 頁";
+  }
 
   document.body.classList.toggle("single-layout", currentBook.layout === "single");
 
@@ -1071,7 +1176,6 @@ function goToPage(targetIndex, allow3D = true) {
   }, 700);
 }
 
-// 偵測瀏覽器是否支援 WebP 編碼（在同畫質下體積比 JPEG 再省 30%～40%）
 let _supportsWebP = null;
 function checkWebPSupport() {
   if (_supportsWebP !== null) return _supportsWebP;
@@ -1086,7 +1190,6 @@ function checkWebPSupport() {
   return _supportsWebP;
 }
 
-// 保畫質智慧瘦身：單張循序載入 -> 高品質平滑縮放 -> 優先轉 WebP -> 立即釋放暫存
 function smartOptimizeDataUrl(rawDataUrl, presetKey) {
   const preset = QUALITY_PRESETS[presetKey] || QUALITY_PRESETS.hd;
   if (!preset.maxSide || preset.maxSide <= 0) {
@@ -1128,12 +1231,10 @@ function smartOptimizeDataUrl(rawDataUrl, presetKey) {
         const mime = checkWebPSupport() ? "image/webp" : "image/jpeg";
         const optimized = canvas.toDataURL(mime, preset.quality);
 
-        // 主動釋放 Canvas 記憶體，避免手機多張連續處理時吃緊
         canvas.width = 0;
         canvas.height = 0;
         img.src = "";
 
-        // 只有在真的變小的情況下才替換，否則保留原檔
         resolve(optimized.length < rawDataUrl.length ? optimized : rawDataUrl);
       } catch (err) {
         resolve(rawDataUrl);
@@ -1153,8 +1254,8 @@ function readFileDirectAsDataURL(file) {
   });
 }
 
-// 單頁順時針旋轉 90°（同時維持高畫質輸出）
 function rotatePage90(index) {
+  if (isReaderOnly) return;
   const pages = currentBook.pages;
   if (!pages[index]) return;
   const item = pages[index];
@@ -1181,9 +1282,8 @@ function rotatePage90(index) {
   img.src = item.src;
 }
 
-// 累積分批匯入＋逐張保畫質智慧瘦身
 async function handleBatchFiles(fileList) {
-  if (!fileList || fileList.length === 0) return;
+  if (isReaderOnly || !fileList || fileList.length === 0) return;
   const files = Array.from(fileList);
   files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
 
@@ -1226,8 +1326,8 @@ async function handleBatchFiles(fileList) {
   }
 }
 
-// 一鍵把目前已匯入的舊大圖全部重新智慧瘦身
 document.getElementById("recompress-all-btn").addEventListener("click", async () => {
+  if (isReaderOnly) return;
   const pages = currentBook.pages;
   if (pages.length === 0) {
     showToast("⚠️ 目前沒有可壓縮的書頁");
@@ -1251,7 +1351,7 @@ function renderThumbnails() {
   const pages = currentBook.pages;
 
   if (pages.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#94a3b8;padding:20px;font-size:13px;">目前尚無書頁，請點擊「＋ 繼續新增照片」開始拍照或匯入！</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#94a3b8;padding:20px;font-size:13px;">目前尚無書頁</div>`;
     return;
   }
 
@@ -1259,20 +1359,29 @@ function renderThumbnails() {
     const kb = p.src ? Math.round((p.src.length * 0.75) / 1024) : 0;
     const card = document.createElement("div");
     card.className = "thumb-card" + (idx === currentIndex ? " active" : "");
+
+    const actionsHtml = isReaderOnly
+      ? ""
+      : `<div class="thumb-actions">
+          <button data-act="prev" title="往前移">◀</button>
+          <button data-act="next" title="往後移">▶</button>
+          <button data-act="rot" title="旋轉 90°">↻</button>
+          <button data-act="edit" title="編輯頁碼與說明">✏️</button>
+          <button data-act="del" class="danger" style="grid-column:span 4;" title="刪除此頁">🗑️ 刪除此頁</button>
+        </div>`;
+
+    const labelText = isReaderOnly
+      ? `${idx + 1}. ${p.label}｜${p.title}`
+      : `${idx + 1}. ${p.label}｜${p.title} (${kb}KB)`;
+
     card.innerHTML = `
       <img src="${p.src}" alt="${p.label}">
-      <div class="thumb-title">${idx + 1}. ${p.label}｜${p.title} (${kb}KB)</div>
-      <div class="thumb-actions">
-        <button data-act="prev" title="往前移">◀</button>
-        <button data-act="next" title="往後移">▶</button>
-        <button data-act="rot" title="旋轉 90°">↻</button>
-        <button data-act="edit" title="編輯頁碼與說明">✏️</button>
-        <button data-act="del" class="danger" style="grid-column:span 4;" title="刪除此頁">🗑️ 刪除此頁</button>
-      </div>
+      <div class="thumb-title">${labelText}</div>
+      ${actionsHtml}
     `;
     card.addEventListener("click", (e) => {
       const btn = e.target.closest("button");
-      if (btn) {
+      if (btn && !isReaderOnly) {
         e.stopPropagation();
         const act = btn.dataset.act;
         if (act === "prev" && idx > 0) {
@@ -1492,20 +1601,46 @@ bookCard.addEventListener("wheel", (e) => {
   applyTransform(true);
 }, { passive: false });
 
+// 打開匯出模式選擇彈窗
+const exportModal = document.getElementById("export-modal");
 document.getElementById("export-btn").addEventListener("click", () => {
   if (currentBook.pages.length === 0) {
     showToast("⚠️ 請先匯入至少 1 張書頁照片再匯出離線版！");
     return;
   }
   const mb = estimateBookSizeMB(currentBook);
-  showToast(`📦 正在打包單一離線 HTML（約 ${mb} MB）...`);
+  document.getElementById("export-summary-text").textContent =
+    `《${currentBook.title}》（共 ${currentBook.pages.length} 頁 · 約 ${mb} MB）`;
+  exportModal.classList.add("open");
+});
+document.getElementById("close-export-modal").addEventListener("click", () => {
+  exportModal.classList.remove("open");
+});
+
+function executeExportHtml(readerOnlyMode) {
+  exportModal.classList.remove("open");
+  const mb = estimateBookSizeMB(currentBook);
+  const modeLabel = readerOnlyMode ? "純閱讀分享版" : "完整工作站版";
+  showToast(`📦 正在打包「${modeLabel}」（約 ${mb} MB）...`);
+
   setTimeout(() => {
+    // 打包前先確保頁面抽屜與彈窗處於關閉狀態，避免匯出後的檔案一打開就浮著遮罩
+    document.getElementById("drawer").classList.remove("open");
+    document.querySelectorAll(".modal-backdrop").forEach(m => m.classList.remove("open"));
+
     const docHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-    const serialized = JSON.stringify(currentBook);
-    const markerRegex = /\/\*__EMBEDDED_BOOK__\*\/[\s\S]*?\/\*__END_EMBEDDED_BOOK__\*\//;
-    const finalHtml = docHtml.replace(
-      markerRegex,
+    const serialized = JSON.stringify(currentBook).replace(/<\/script/gi, "<\\/script");
+
+    const bookMarkerRegex = /\/\*__EMBEDDED_BOOK__\*\/[\s\S]*?\/\*__END_EMBEDDED_BOOK__\*\//;
+    const modeMarkerRegex = /\/\*__READER_ONLY__\*\/[\s\S]*?\/\*__END_READER_ONLY__\*\//;
+
+    let finalHtml = docHtml.replace(
+      bookMarkerRegex,
       `/*__EMBEDDED_BOOK__*/ ${serialized} /*__END_EMBEDDED_BOOK__*/`
+    );
+    finalHtml = finalHtml.replace(
+      modeMarkerRegex,
+      `/*__READER_ONLY__*/ ${readerOnlyMode ? "true" : "false"} /*__END_READER_ONLY__*/`
     );
 
     const safeTitle = (currentBook.title || "互動電子書").replace(/[\\/:*?"<>|]/g, "_");
@@ -1513,14 +1648,17 @@ document.getElementById("export-btn").addEventListener("click", () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${safeTitle}_3D電子書_共${currentBook.pages.length}頁離線版.html`;
+    a.download = `${safeTitle}_共${currentBook.pages.length}頁_${modeLabel}.html`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    showToast(`🎉 已匯出《${safeTitle}》離線版（約 ${mb} MB）！`);
+    showToast(`🎉 已匯出《${safeTitle}》${modeLabel}！`);
   }, 120);
-});
+}
+
+document.getElementById("do-export-reader-btn").addEventListener("click", () => executeExportHtml(true));
+document.getElementById("do-export-studio-btn").addEventListener("click", () => executeExportHtml(false));
 
 document.getElementById("export-json-btn").addEventListener("click", () => {
   const safeTitle = (currentBook.title || "電子書專案").replace(/[\\/:*?"<>|]/g, "_");
@@ -1563,6 +1701,7 @@ document.getElementById("import-json-input").addEventListener("change", function
 });
 
 function openBookModal() {
+  if (isReaderOnly) return;
   document.getElementById("input-book-title").value = currentBook.title || "";
   document.getElementById("input-book-subtitle").value = currentBook.subtitle || "";
   document.getElementById("select-layout-mode").value = currentBook.layout || "spread";
@@ -1596,6 +1735,7 @@ document.getElementById("sound-toggle-btn").addEventListener("click", (e) => {
 });
 
 function openPageEditModal(idx) {
+  if (isReaderOnly) return;
   editingPageIndex = idx;
   const item = currentBook.pages[idx];
   if (!item) return;
@@ -1620,6 +1760,7 @@ document.getElementById("save-page-edit-btn").addEventListener("click", () => {
 });
 
 document.getElementById("shelf-btn").addEventListener("click", () => {
+  if (isReaderOnly) return;
   renderShelfList();
   document.getElementById("shelf-modal").classList.add("open");
 });
@@ -1699,6 +1840,7 @@ document.getElementById("close-drawer-btn").addEventListener("click", () => {
 });
 
 document.getElementById("clear-pages-btn").addEventListener("click", () => {
+  if (isReaderOnly) return;
   stopKenBurns();
   resetZoom(true);
   currentBook.pages = [];
@@ -1710,11 +1852,13 @@ document.getElementById("clear-pages-btn").addEventListener("click", () => {
 
 const dropMask = document.getElementById("drop-zone-mask");
 window.addEventListener("dragover", (e) => {
+  if (isReaderOnly) return;
   e.preventDefault();
   dropMask.classList.add("active");
 });
 dropMask.addEventListener("dragleave", () => dropMask.classList.remove("active"));
 window.addEventListener("drop", (e) => {
+  if (isReaderOnly) return;
   e.preventDefault();
   dropMask.classList.remove("active");
   if (e.dataTransfer && e.dataTransfer.files) {
